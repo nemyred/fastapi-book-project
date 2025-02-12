@@ -144,3 +144,113 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 For support, please open an issue in the GitHub repository.
+
+
+FastAPI Book Project
+Welcome to the FastAPI Book Project! This application allows users to retrieve information about books through a RESTful API.
+
+Features
+Retrieve details of a book by its ID.
+/api/v1/books/{book_id}: Get book details.
+/healthcheck: Check if the API is active.
+/: Root endpoint with a welcome message.
+Tech Stack
+Backend: FastAPI
+Database: SQLite (via SQLAlchemy)
+Containerization: Docker
+Web Server: Nginx
+CI/CD: GitHub Actions
+Hosting: GCP VM
+Setup Instructions
+Run Locally
+Clone the repository:
+
+
+git clone https://github.com/yourusername/fastapi-book-project.git
+cd fastapi-book-project
+Set up a virtual environment:
+
+
+python3 -m venv venv
+source venv/bin/activate
+Install dependencies:
+
+
+pip install -r requirements.txt
+Run the application:
+
+
+uvicorn main:app --host 0.0.0.0 --port 8000
+Access the API:
+
+Root Endpoint: http://localhost:8000/
+Healthcheck: http://localhost:8000/healthcheck
+Book Details: http://localhost:8000/api/v1/books/{book_id}
+Run with Docker
+Build the Docker image:
+
+
+docker build -t fastapi-book-project .
+Run the Docker container:
+
+
+docker run -d --name fastapi-container -p 8000:8000 fastapi-book-project
+Access the API as described above.
+
+Deployment
+This application uses GitHub Actions for CI/CD and is deployed on a GCP VM with Nginx as a reverse proxy.
+
+Steps for Deployment
+Push code changes to the main branch.
+The GitHub Actions pipeline will:
+Run tests with pytest.
+Build and push the Docker image to Docker Hub.
+SSH into the GCP VM and pull the latest Docker image.
+Restart the FastAPI application.
+Nginx Configuration
+Nginx is configured to serve the FastAPI application and forward requests to the Uvicorn server running in the Docker container.
+
+Example Nginx configuration:
+
+
+server {
+    listen 80;
+    server_name 34.56.200.23;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+Continuous Integration & Deployment
+CI: Automatically runs pytest for every pull request to the main branch.
+CD: Deploys the latest version of the application when a pull request is merged into main.
+Healthcheck Endpoint
+URL: /healthcheck
+Method: GET
+Response:
+
+{
+    "status": "active"
+}
+API Reference
+/api/v1/books/{book_id}
+Method: GET
+Description: Retrieve book details by ID.
+Responses:
+200 OK: Book details in JSON.
+404 Not Found: If the book does not exist.
+
+{
+    "detail": "Book not found"
+}
+/
+Method: GET
+Description: Welcome message.
+
+Response:
+
+{
+    "message": "Welcome to the FastAPI Book Project API!"
+}

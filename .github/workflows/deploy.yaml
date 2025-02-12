@@ -13,22 +13,18 @@ jobs:
       # Step 1: Checkout the repository
       - uses: actions/checkout@v3
 
-      # Step 2: Authenticate with GCP
-      - name: Authenticate with GCP
-        env:
-          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      # Step 2: Set up SSH private key
+      - name: Set up SSH
         run: |
-          echo "${GCP_CREDENTIALS}" | base64 --decode > keyfile.json
-          gcloud auth activate-service-account --key-file=keyfile.json
-          gcloud config set project ${{ secrets.GOOGLE_PROJECT }}
-          gcloud compute config-ssh
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 34.56.200.23 >> ~/.ssh/known_hosts
 
       # Step 3: SSH into GCP VM and deploy the Docker container
       - name: Deploy Docker Container on GCP VM
         run: |
-          gcloud compute ssh hng00 \
-            --zone=us-central1-c \
-            --command="docker stop fastapi-container || true && \
-                       docker rm fastapi-container || true && \
-                       docker pull red4u/fastapi-book-project:latest && \
-                       docker run -d --name fastapi-container -p 8000:8000 red4u/fastapi-book-project:latest"
+          ssh -i ~/.ssh/id_rsa chine@34.56.200.23 "docker stop fastapi-container || true && \
+            docker rm fastapi-container || true && \
+            docker pull red4u/fastapi-book-project:latest && \
+            docker run -d --name fastapi-container -p 8000:8000 red4u/fastapi-book-project:latest"

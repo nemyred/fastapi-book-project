@@ -38,3 +38,4 @@ jobs:
             echo "Branch is consistent with main."
           else
             echo "Warning: Branch may not be up-to-date with main."
+          fi
